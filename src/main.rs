@@ -62,11 +62,12 @@ fn main_loop(terminal: &mut CrossTerminal, app: &mut App) -> DynResult {
     Ok(())
 }
 
-fn on_draw(frame: &mut TerminalFrame, app: &App) {
+fn on_draw(frame: &mut TerminalFrame, app: &mut App) {
     let chunks = widget::main_chunks(frame.size());
+
     frame.render_widget(widget::title_bar(app), chunks[0]);
-    //如果是list需要render_stateful_widget,否则滚动状态不对
-    frame.render_widget(widget::stock_list(app), chunks[1]);
+    //list需要render_stateful_widget,否则滚动状态不对
+    frame.render_stateful_widget(widget::stock_list(&app.stocks), chunks[1], &mut app.stocks_state);
     frame.render_widget(widget::stock_detail(app), chunks[2]);
     frame.render_widget(widget::status_bar(app), chunks[3]);
 

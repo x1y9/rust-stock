@@ -2,7 +2,7 @@ use tui::{layout::{Rect, Layout, Direction, Constraint, Alignment},
 widgets::{Paragraph, Block, Borders, BorderType, List, ListItem}, 
 style::{Style, Color, Modifier}, text::{Spans, Span}};
 
-use crate::{App};
+use crate::{App, Stock};
 
 pub fn main_chunks(area: Rect) -> Vec<Rect> {
     let parent = Layout::default()
@@ -29,8 +29,8 @@ pub fn main_chunks(area: Rect) -> Vec<Rect> {
     vec!(parent[0], center[0], center[1], parent[2])    
 }
 
-pub fn stock_list(app: &App) -> List {
-    let items: Vec<_> = app.stocks.iter()
+pub fn stock_list(stocks: &Vec<Stock>) -> List {
+    let items: Vec<_> = stocks.iter()
         .map(|stock| {
             ListItem::new(Spans::from(vec![
                 Span::styled(stock.title.clone(),Style::default())
