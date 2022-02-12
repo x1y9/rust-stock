@@ -46,14 +46,15 @@ impl App {
     //这里传入参数声明为&[Stock], &Vec<Stock>似乎都可以
     pub fn new(vs: &[Stock]) -> Self {
 
-        //将选择状态初始化为第一条,否则为未选择
-        let mut sel = ListState::default();
-        sel.select(Option::Some(0));
+        //ListState:default为未选择, 如果需要也可以初始化为0
+        //let mut sel = ListState::default();
+        //sel.select(Option::Some(0));
+        
         Self {
             should_exit: false,
             state: AppState::Normal,
             stocks: vs.to_vec(),
-            stocks_state: sel,
+            stocks_state: ListState::default(),
         }
     }
 }

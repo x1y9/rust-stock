@@ -42,8 +42,8 @@ fn load_stocks() -> Result<Vec<Stock>, io::Error> {
     }
 
     let content = fs::read_to_string(DB_PATH)?;
-    //必须所有key都对上,有一个key错误,就会导致整个失败,返回空vec
-    Ok(serde_json::from_str(&content)?)
+    //必须所有key都对上,否则异常,用unwrap_or_default来屏蔽异常
+    Ok(serde_json::from_str(&content).unwrap_or_default())
 }
 
 //主事件循环
