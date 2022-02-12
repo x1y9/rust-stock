@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+
+#env_logger太大了,simple_logger比较小,但2.0版本默认UTC时间,不太好看
+#log = "0.4"
+#simple_logger = "1.16"
+
+#crossterm支持windows,但性能比较termion稍差
 tui = { version = "0.14", default-features = false, features = ['crossterm', 'serde'] }
 crossterm = { version = "0.19", features = [ "serde" ] }
 serde = {version = "1.0", features = ["derive"] }

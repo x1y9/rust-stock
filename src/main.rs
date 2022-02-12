@@ -1,14 +1,17 @@
-use std::{error::Error};
+use std::{error::Error, io, fs, path::Path};
 
 use crossterm::event::Event;
-use stock::{DynResult, CrossTerminal, App, TerminalFrame, events::on_events, widget};
+use stock::{DynResult, CrossTerminal, App, TerminalFrame, events::on_events, widget, Stock};
 use tui::{Terminal, backend::CrosstermBackend};
 
-const DB_PATH: &str="db.json";
+const DB_PATH: &str="stocks.json";
 
 fn main() -> DynResult{
+    //Log和SimpleLogger在TUI应用里意义不大,看不到
+    //SimpleLogger::new().init()?;
+    
+    let mut app = App::new(&load_stocks()?);
     let mut terminal = init_terminal()?;
-    let mut app = App::new();
 
     main_loop(&mut terminal, &mut app)?;
     close_terminal(terminal)?;
@@ -32,6 +35,17 @@ fn close_terminal(mut terminal: CrossTerminal) -> DynResult{
     Ok(())
 }
 
+fn load_stocks() -> Result<Vec<Stock>, io::Error> {
+    //必须有,否则db不存在时报FileNotFound异常
+    if !Path::new(DB_PATH).exists() {
+        fs::File::create(DB_PATH)?;
+    }
+
+    let content = fs::read_to_string(DB_PATH)?;
+    //必须所有key都对上,有一个key错误,就会导致整个失败,返回空vec
+    Ok(serde_json::from_str(&content)?)
+}
+
 //主事件循环
 fn main_loop(terminal: &mut CrossTerminal, app: &mut App) -> DynResult {
     while !app.should_exit {
@@ -39,7 +53,7 @@ fn main_loop(terminal: &mut CrossTerminal, app: &mut App) -> DynResult {
             on_draw(f, app);
         })?;
 
-        //这里或许可以处理一下超时
+        //read是block的,如果要非block,可以考虑poll
         if let Event::Key(event) = crossterm::event::read()? {
             on_events(event, app);
         }
@@ -50,16 +64,12 @@ fn main_loop(terminal: &mut CrossTerminal, app: &mut App) -> DynResult {
 
 fn on_draw(frame: &mut TerminalFrame, app: &App) {
     let chunks = widget::main_chunks(frame.size());
-
-    // let quest_list = widget::quest_list(app);
-    // frame.render_widget(quest_list, main_chunks[0]);
-
-    // let quest_input = widget::quest_input(app);
-    // frame.render_widget(quest_input, main_chunks[1]);
-    // handle_input_cursor(&app, frame, &main_chunks);
-
     frame.render_widget(widget::title_bar(app), chunks[0]);
+    //如果是list需要render_stateful_widget,否则滚动状态不对
     frame.render_widget(widget::stock_list(app), chunks[1]);
     frame.render_widget(widget::stock_detail(app), chunks[2]);
     frame.render_widget(widget::status_bar(app), chunks[3]);
+
+    //如果有输入控件,处理光标
+    //frame.set_cursor(chunks[3].x, chunks[3].y)
 }

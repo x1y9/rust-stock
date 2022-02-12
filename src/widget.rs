@@ -1,4 +1,6 @@
-use tui::{layout::{Rect, Layout, Direction, Constraint, Alignment}, widgets::{Paragraph, Block, Borders, BorderType}, style::{Style, Color}};
+use tui::{layout::{Rect, Layout, Direction, Constraint, Alignment}, 
+widgets::{Paragraph, Block, Borders, BorderType, List, ListItem}, 
+style::{Style, Color, Modifier}, text::{Spans, Span}};
 
 use crate::{App};
 
@@ -27,13 +29,26 @@ pub fn main_chunks(area: Rect) -> Vec<Rect> {
     vec!(parent[0], center[0], center[1], parent[2])    
 }
 
-pub fn stock_list(_app: &App) -> Paragraph {
-    Paragraph::new("Stocks")
-    .alignment(Alignment::Center)
-    .style(Style::default().fg(Color::LightCyan))
-    .block(Block::default().title("stocks")
-        .borders(Borders::ALL)
-        .border_type(BorderType::Plain))
+pub fn stock_list(app: &App) -> List {
+    let items: Vec<_> = app.stocks.iter()
+        .map(|stock| {
+            ListItem::new(Spans::from(vec![
+                Span::styled(stock.title.clone(),Style::default())
+                ]))
+        }).collect();
+
+    List::new(items)
+        .block(
+            Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::White))
+            .title("list")
+            .border_type(BorderType::Plain))
+        .highlight_style(
+            Style::default()
+            .bg(Color::Yellow)
+            .fg(Color::Black)
+            .add_modifier(Modifier::BOLD))
 }
 
 pub fn stock_detail(_app: &App) -> Paragraph {
