@@ -1,8 +1,9 @@
 use std::{error::Error};
 
 use crossterm::event::Event;
-use stock::{DynResult, CrossTerminal, App, TerminalFrame, events::on_events, widget};
-use tui::{Terminal, backend::CrosstermBackend};
+use stock::{DynResult, CrossTerminal, App, TerminalFrame, events::on_events, widget, AppState};
+use tui::{Terminal, backend::CrosstermBackend, widgets};
+use unicode_width::UnicodeWidthStr;
 
 
 fn main() -> DynResult{
@@ -60,6 +61,12 @@ fn on_draw(frame: &mut TerminalFrame, app: &mut App) {
     frame.render_widget(widget::stock_detail(app), chunks[2]);
     frame.render_widget(widget::status_bar(app), chunks[3]);
 
-    //如果有输入控件,处理光标
-    //frame.set_cursor(chunks[3].x, chunks[3].y)
+    if let AppState::Adding = app.state {
+        //popup需要先clear一下,否则下面的背景色会透上来
+        frame.render_widget(widgets::Clear, chunks[4]);
+        frame.render_widget(widget::stock_input(app), chunks[4]);
+        //显示光标
+        frame.set_cursor(chunks[4].x + app.input.width() as u16 + 1, chunks[4].y + 1);
+    }
+    
 }

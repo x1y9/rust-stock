@@ -22,6 +22,8 @@ pub fn on_events(event:KeyEvent, app:&mut App) {
             }
             else if code == KeyCode::Char('n') {
                 //新建stock
+                app.state = AppState::Adding;
+                app.input = String::new();
             }
             else if code == KeyCode::Up && total > 0 {
                 //注意这里如果不加判断直接用sel - 1, 在sel为0时会导致异常
@@ -32,7 +34,20 @@ pub fn on_events(event:KeyEvent, app:&mut App) {
             }
         },
 
-        AppState::Adding => {
-        }
+        AppState::Adding => match code {
+            KeyCode::Enter => {
+                app.state = AppState::Normal;
+            }
+            KeyCode::Esc => {
+                app.state = AppState::Normal;
+            }
+            KeyCode::Char(c) => {
+                app.input.push(c);
+            }
+            KeyCode::Backspace => {
+                app.input.pop();
+            }
+            _ => {}
+        },
     }
 }
