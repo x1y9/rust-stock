@@ -65,7 +65,7 @@ fn on_draw(frame: &mut TerminalFrame, app: &mut App) {
         //popup需要先clear一下,否则下面的背景色会透上来
         frame.render_widget(widgets::Clear, chunks[4]);
         frame.render_widget(widget::stock_input(app), chunks[4]);
-        //显示光标
+        //显示光标, width()接口依赖一个外部包,可以正确处理中文宽度
         frame.set_cursor(chunks[4].x + app.input.width() as u16 + 1, chunks[4].y + 1);
     }
     

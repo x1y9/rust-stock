@@ -1,8 +1,1 @@
-[
-    {"title":"中石油", "code":"SH601857", "price":5.8},
-    {"title":"贵州茅台", "code":"SH600519", "price":1850},
-    {"title":"中国平安", "code":"SH601318", "price":55.9},
-    {"title":"隆基股份", "code":"SH601012", "price":65.1},
-    {"title":"药明康德", "code":"SH603259", "price":83.7},
-    {"title":"招商银行", "code":"SH600036", "price":52.6}	
-]
+[{"title":"隆基股份","code":"SH601012","price":65.1},{"title":"贵州茅台","code":"SH600519","price":1850.0},{"title":"中国平安","code":"SH601318","price":55.9},{"title":"药明康德","code":"SH603259","price":83.7},{"title":"招商银行","code":"SH600036","price":52.6},{"title":"中石油","code":"SH601857","price":5.8}]

@@ -19,11 +19,12 @@ pub fn main_chunks(area: Rect) -> Vec<Rect> {
         .direction(Direction::Horizontal)
         .margin(0)
         .constraints([
-            Constraint::Percentage(50),
-            Constraint::Percentage(50),
+            Constraint::Percentage(30),
+            Constraint::Percentage(70),
         ].as_ref())
         .split(parent[1]);
 
+    //计算新建stock时的弹框位置    
     let popup = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -90,8 +91,7 @@ pub fn title_bar(_app: &App) -> Paragraph {
 
 pub fn status_bar(app: &App) -> Paragraph {
     Paragraph::new(match app.state {
-        AppState::Normal => "Quit[Q] | New[N] | Delete[D]",
+        AppState::Normal => "Quit[Q] | New[N] | Delete[D] | Refresh[R] | Move UpDown[U/J]",
         AppState::Adding => "Enter create | ESC cancel"
-    })
-    .alignment(Alignment::Left)
+    }).alignment(Alignment::Left)
 }
