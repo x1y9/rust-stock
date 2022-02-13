@@ -1,5 +1,6 @@
 use std::{io::Stdout, fs, path::Path};
 
+use http_req::request;
 use serde::{Serialize, Deserialize};
 use tui::{backend::CrosstermBackend, widgets::ListState};
 
@@ -76,6 +77,20 @@ impl App {
         //必须所有key都对上,否则异常,用unwrap_or_default来屏蔽异常
         self.stocks = serde_json::from_str(&content).unwrap_or_default();
 
+        Ok(())
+    }
+
+    pub fn refresh_stocks(&mut self) -> DynResult{ 
+        if self.stocks.len() > 0 {
+            let codes: Vec<_> = self.stocks.iter()
+                .map(|stock| stock.code.clone())
+                .collect();
+            let mut writer = Vec::new();
+            request::get(format!("{}{}","http://api.money.126.net/data/feed/",codes.join(",")), &mut writer)?;
+            //返回_ntes_quote_callback({"code":{}})
+            let _content = String::from_utf8_lossy(&writer);
+            //
+        }
         Ok(())
     }
 }

@@ -9,8 +9,10 @@ use unicode_width::UnicodeWidthStr;
 fn main() -> DynResult{
     //Log和SimpleLogger在TUI应用里意义不大,看不到
     //SimpleLogger::new().init()?;
-    
+
     let mut app = App::new();
+    app.load_stocks()?;
+    app.refresh_stocks()?;
     let mut terminal = init_terminal()?;
     
     main_loop(&mut terminal, &mut app)?;
@@ -37,7 +39,6 @@ fn close_terminal(mut terminal: CrossTerminal) -> DynResult{
 
 //主事件循环
 fn main_loop(terminal: &mut CrossTerminal, app: &mut App) -> DynResult {
-    app.load_stocks()?;
     while !app.should_exit {
         terminal.draw(|f| {
             on_draw(f, app);

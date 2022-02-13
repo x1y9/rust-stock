@@ -13,6 +13,9 @@ pub fn on_events(event:KeyEvent, app:&mut App) {
             if code == KeyCode::Char('q') {
                 app.should_exit = true;
             }
+            else if code == KeyCode::Char('r') {                
+                app.refresh_stocks().unwrap();
+            }
             else if code == KeyCode::Char('n') {
                 //新建stock
                 app.state = AppState::Adding;
