@@ -1,7 +1,7 @@
 
 use crossterm::event::{KeyEvent, KeyCode};
 
-use crate::{App, AppState};
+use crate::{App, AppState, Stock};
 
 pub fn on_events(event:KeyEvent, app:&mut App) {
     let code = event.code;
@@ -51,6 +51,11 @@ pub fn on_events(event:KeyEvent, app:&mut App) {
         AppState::Adding => match code {
             KeyCode::Enter => {
                 app.state = AppState::Normal;
+                if app.input.len() > 0 {
+                    app.stocks.push(Stock::new(app.input.clone()));
+                    app.refresh_stocks().unwrap();
+                    app.save_stocks().unwrap();
+                }
             }
             KeyCode::Esc => {
                 app.state = AppState::Normal;

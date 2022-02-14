@@ -93,9 +93,10 @@ impl App {
             if content.starts_with("_ntes_quote_callback") {
                 let json: Map<String, Value> = serde_json::from_str(&content.chars().skip(21).take(content.len() - 23).collect::<String>())?;
                 for stock in &mut self.stocks {
-                    let obj = json.get(&stock.code).unwrap_or(&json!("{}")).as_object().unwrap().to_owned();
-                    stock.title = obj.get("name").unwrap_or(&json!("")).as_str().unwrap().to_owned();
-                    stock.price = obj.get("price").unwrap_or(&json!("0.0")).as_f64().unwrap().to_owned();
+                    //如果code不对,返回的json里不包括这个对象, 用unwrap_or生成一个空对象,防止异常
+                    let obj = json.get(&stock.code).unwrap_or(&json!({})).as_object().unwrap().to_owned();
+                    stock.title = obj.get("name").unwrap_or(&json!(stock.code)).as_str().unwrap().to_owned();
+                    stock.price = obj.get("price").unwrap_or(&json!(0.0)).as_f64().unwrap();
                 }
             }
         }
