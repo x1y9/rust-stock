@@ -21,5 +21,7 @@ unicode-width = "0.1"
 # reqwest太大了3M, ureq也有2M, http_req只有300k
 http_req = "0.8"
 
+# 查询跨平台的通用目录位置
+dirs-next = "2.0"
+
 #lazy_static = "1.4.0"
-#directories-next = "2.0.0"

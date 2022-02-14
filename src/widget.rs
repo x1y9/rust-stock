@@ -4,6 +4,8 @@ style::{Style, Color, Modifier}, text::{Spans, Span}};
 
 use crate::{App, Stock, AppState};
 
+const VERSION:&str = env!("CARGO_PKG_VERSION");
+
 //计算所有的屏幕窗口区域,供后续render使用
 pub fn main_chunks(area: Rect) -> Vec<Rect> {
     let parent = Layout::default()
@@ -91,7 +93,7 @@ pub fn stock_input(app: &App) -> Paragraph {
 }
 
 pub fn title_bar(_app: &App) -> Paragraph {
-    Paragraph::new("Stock 1.0")
+    Paragraph::new(format!("Stock {}", VERSION))
     .alignment(Alignment::Left)
 }
 

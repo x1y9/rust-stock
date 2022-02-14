@@ -12,7 +12,7 @@ pub type DynResult = Result<(), Box<dyn std::error::Error>>;
 pub type CrossTerminal = tui::Terminal<CrosstermBackend<Stdout>>;
 pub type TerminalFrame<'a> = tui::Frame<'a, CrosstermBackend<Stdout>>;
 
-pub const DB_PATH: &str="stocks.json";
+pub const DB_PATH: &str=".stocks.json";
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Stock {
@@ -66,17 +66,19 @@ impl App {
     }
 
     pub fn save_stocks(&self) -> DynResult{
-        fs::write(DB_PATH, serde_json::to_string(&self.stocks)?)?;
+        let db=dirs_next::home_dir().unwrap().join(DB_PATH);
+        fs::write(&db, serde_json::to_string(&self.stocks)?)?;
         Ok(())
     }
 
     pub fn load_stocks(&mut self) -> DynResult{
         //必须有,否则db不存在时报FileNotFound异常
-        if !Path::new(DB_PATH).exists() {
-            fs::File::create(DB_PATH)?;
+        let db=dirs_next::home_dir().unwrap().join(DB_PATH);
+        if !Path::new(&db).exists() {
+            fs::File::create(&db)?;
         }
 
-        let content = fs::read_to_string(DB_PATH)?;
+        let content = fs::read_to_string(&db)?;
         //必须所有key都对上,否则异常,用unwrap_or_default来屏蔽异常
         self.stocks = serde_json::from_str(&content).unwrap_or_default();
 
