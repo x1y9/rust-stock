@@ -2,6 +2,7 @@ use std::{io::Stdout, fs, path::Path};
 
 use http_req::request;
 use serde::{Serialize, Deserialize};
+use serde_json::{Value, Map, json};
 use tui::{backend::CrosstermBackend, widgets::ListState};
 
 pub mod events;
@@ -17,7 +18,7 @@ pub const DB_PATH: &str="stocks.json";
 pub struct Stock {
     pub title: String,
     pub code: String,
-    pub price: f32
+    pub price: f64
 }
 
 impl Stock {
@@ -88,8 +89,15 @@ impl App {
             let mut writer = Vec::new();
             request::get(format!("{}{}","http://api.money.126.net/data/feed/",codes.join(",")), &mut writer)?;
             //返回_ntes_quote_callback({"code":{}})
-            let _content = String::from_utf8_lossy(&writer);
-            //
+            let content = String::from_utf8_lossy(&writer);
+            if content.starts_with("_ntes_quote_callback") {
+                let json: Map<String, Value> = serde_json::from_str(&content.chars().skip(21).take(content.len() - 23).collect::<String>())?;
+                for stock in &mut self.stocks {
+                    let obj = json.get(&stock.code).unwrap_or(&json!("{}")).as_object().unwrap().to_owned();
+                    stock.title = obj.get("name").unwrap_or(&json!("")).as_str().unwrap().to_owned();
+                    stock.price = obj.get("price").unwrap_or(&json!("0.0")).as_f64().unwrap().to_owned();
+                }
+            }
         }
         Ok(())
     }

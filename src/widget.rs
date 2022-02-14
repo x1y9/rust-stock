@@ -69,8 +69,14 @@ pub fn stock_list(stocks: &Vec<Stock>) -> List {
             .add_modifier(Modifier::BOLD))
 }
 
-pub fn stock_detail(_app: &App) -> Paragraph {
-    Paragraph::new("price")
+pub fn stock_detail(app: &App) -> Paragraph {
+    let mut info = String::new();
+    if app.stocks_state.selected().is_some() {
+        let stock = app.stocks.get(app.stocks_state.selected().unwrap_or(0)).unwrap();
+        info = format!("当前:{}", stock.price.to_string());
+    }
+
+    Paragraph::new(info)
     .alignment(Alignment::Center)
     .style(Style::default())
     .block(Block::default().title("info")

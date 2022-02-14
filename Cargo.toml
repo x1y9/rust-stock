@@ -9,14 +9,17 @@ edition = "2021"
 #log = "0.4"
 #simple_logger = "1.16"
 
-#crossterm支持windows,但性能比较termion稍差
+#crossterm支持windows,但性能比termion稍差
 tui = { version = "0.14", default-features = false, features = ['crossterm', 'serde'] }
 crossterm = { version = "0.19", features = [ "serde" ] }
 serde = {version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
 # 解决tui里中文宽度的计算
 unicode-width = "0.1"
+
 # reqwest太大了3M, ureq也有2M, http_req只有300k
 http_req = "0.8"
+
 #lazy_static = "1.4.0"
 #directories-next = "2.0.0"
