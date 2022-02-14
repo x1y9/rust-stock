@@ -13,8 +13,11 @@ pub fn on_events(event:KeyEvent, app:&mut App) {
             if code == KeyCode::Char('q') {
                 app.should_exit = true;
             }
-            else if code == KeyCode::Char('r') {                
-                app.refresh_stocks().unwrap();
+            else if code == KeyCode::Char('r') {
+                //如果不想错误处理,可以直接unwrap_or_default忽略Error             
+                if let Err(err) = app.refresh_stocks() {
+                    app.error = format!("{:?}", err);
+                }
             }
             else if code == KeyCode::Char('n') {
                 //新建stock
@@ -53,7 +56,9 @@ pub fn on_events(event:KeyEvent, app:&mut App) {
                 app.state = AppState::Normal;
                 if app.input.len() > 0 {
                     app.stocks.push(Stock::new(app.input.clone()));
-                    app.refresh_stocks().unwrap();
+                    if let Err(err) = app.refresh_stocks() {
+                        app.error = format!("{:?}", err);
+                    }
                     app.save_stocks().unwrap();
                 }
             }

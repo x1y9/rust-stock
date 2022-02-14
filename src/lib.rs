@@ -40,6 +40,7 @@ pub enum AppState {
 pub struct App {
     pub should_exit:bool,
     pub state:AppState,
+    pub error:String,
     pub input:String,
     pub stocks:Vec<Stock>,
     //记录了当前选中和滚动位置两个状态
@@ -58,6 +59,7 @@ impl App {
             should_exit: false,
             state: AppState::Normal,
             input: String::new(),
+            error: String::new(),
             stocks: [].to_vec(),
             stocks_state: ListState::default(),
         }

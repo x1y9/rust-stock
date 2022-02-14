@@ -12,7 +12,8 @@ fn main() -> DynResult{
 
     let mut app = App::new();
     app.load_stocks()?;
-    app.refresh_stocks()?;
+    //初始化的刷新, 用unwrap_or_default忽略Err
+    app.refresh_stocks().unwrap_or_default();
     let mut terminal = init_terminal()?;
     
     main_loop(&mut terminal, &mut app)?;

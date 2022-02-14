@@ -95,9 +95,16 @@ pub fn title_bar(_app: &App) -> Paragraph {
     .alignment(Alignment::Left)
 }
 
-pub fn status_bar(app: &App) -> Paragraph {
-    Paragraph::new(match app.state {
-        AppState::Normal => "Quit[Q] | New[N] | Delete[D] | Refresh[R] | Move UpDown[U/J]",
-        AppState::Adding => "Enter create | ESC cancel"
-    }).alignment(Alignment::Left)
+pub fn status_bar(app: &mut App) -> Paragraph {
+    let mut status = app.error.clone();
+    if app.error.is_empty() {
+        status = match app.state {
+            AppState::Normal => "Quit[Q] | New[N] | Delete[D] | Refresh[R] | Move UpDown[U/J]",
+            AppState::Adding => "Enter create | ESC cancel"
+        }.to_string();
+    }
+    else {
+        app.error.clear();
+    }
+    Paragraph::new(status).alignment(Alignment::Left)
 }
