@@ -53,7 +53,9 @@ pub fn stock_list(stocks: &Vec<Stock>) -> List {
     let items: Vec<_> = stocks.iter()
         .map(|stock| {
             ListItem::new(Spans::from(vec![
-                Span::styled(stock.title.clone(),Style::default())
+                Span::styled(stock.title.clone(),Style::default()),
+                Span::styled(format!(" {:+.2}%",stock.percent * 100.0),
+                    Style::default().fg(if stock.percent < 0.0 {Color::Green} else {Color::Red}))
                 ]))
         }).collect();
 
