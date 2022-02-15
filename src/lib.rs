@@ -20,6 +20,7 @@ pub struct Stock {
     pub code: String,
     pub price: f64,
     pub percent: f64,
+    pub slice: Vec<f64>
 }
 
 impl Stock {
@@ -28,7 +29,8 @@ impl Stock {
             code,
             title:String::from(""),
             price:0.0,
-            percent:0.0
+            percent:0.0,
+            slice:vec![],
         }
     }
 }
@@ -99,9 +101,19 @@ impl App {
                 for stock in &mut self.stocks {
                     //如果code不对,返回的json里不包括这个对象, 用unwrap_or生成一个空对象,防止异常
                     let obj = json.get(&stock.code).unwrap_or(&json!({})).as_object().unwrap().to_owned();
-                    stock.title = obj.get("name").unwrap_or(&json!(stock.code)).as_str().unwrap().to_owned();
+                    stock.title = obj.get("name").unwrap_or(&json!("无效代码")).as_str().unwrap().to_owned();
                     stock.price = obj.get("price").unwrap_or(&json!(0.0)).as_f64().unwrap();
                     stock.percent = obj.get("percent").unwrap_or(&json!(0.0)).as_f64().unwrap();
+
+                    // if json.contains_key(&stock.code) {
+                    //     let mut writer2 = Vec::new();
+                    //     request::get(format!("http://img1.money.126.net/data/hs/time/today/{}.json",stock.code), &mut writer2)?;
+                    //     println!("{:?}", format!("http://img1.money.126.net/data/hs/time/today/{}.json",stock.code));  
+                    //     let json2: Map<String, Value> = serde_json::from_str(&String::from_utf8_lossy(&writer2).to_string())?;
+                    //     stock.slice = json2.get("data").unwrap().as_array().unwrap()
+                    //         .iter().map(|item| item.as_array().unwrap().get(2).unwrap().as_f64().unwrap())
+                    //         .collect();
+                    // }
                 }
             }
         }

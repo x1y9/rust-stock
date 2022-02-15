@@ -7,9 +7,6 @@ use unicode_width::UnicodeWidthStr;
 
 
 fn main() -> DynResult{
-    //Log和SimpleLogger在TUI应用里意义不大,看不到
-    //SimpleLogger::new().init()?;
-
     let mut app = App::new();
     app.load_stocks()?;
     //初始化的刷新, 用unwrap_or_default忽略Err
