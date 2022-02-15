@@ -53,9 +53,9 @@ pub fn stock_list(stocks: &Vec<Stock>) -> List {
     let items: Vec<_> = stocks.iter()
         .map(|stock| {
             ListItem::new(Spans::from(vec![
+                Span::styled(format!("{:+.2}% ",stock.percent * 100.0),
+                    Style::default().fg(if stock.percent < 0.0 {Color::Green} else {Color::Red})),
                 Span::styled(stock.title.clone(),Style::default()),
-                Span::styled(format!(" {:+.2}%",stock.percent * 100.0),
-                    Style::default().fg(if stock.percent < 0.0 {Color::Green} else {Color::Red}))
                 ]))
         }).collect();
 
@@ -64,7 +64,7 @@ pub fn stock_list(stocks: &Vec<Stock>) -> List {
             Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::White))
-            .title("list")
+            .title("列表")
             .border_type(BorderType::Plain))
         .highlight_style(
             Style::default()
@@ -77,13 +77,13 @@ pub fn stock_detail(app: &App) -> Paragraph {
     let mut info = String::new();
     if app.stocks_state.selected().is_some() {
         let stock = app.stocks.get(app.stocks_state.selected().unwrap_or(0)).unwrap();
-        info = format!("当前:{}", stock.price.to_string());
+        info = format!("代码:{}\n当前:{}\n涨跌:{:+.2}%", stock.code, stock.price.to_string(), stock.percent * 100.0);
     }
 
     Paragraph::new(info)
     .alignment(Alignment::Center)
     .style(Style::default())
-    .block(Block::default().title("info")
+    .block(Block::default().title("详情")
         .borders(Borders::ALL)
         .border_type(BorderType::Plain))
 }
@@ -91,11 +91,11 @@ pub fn stock_detail(app: &App) -> Paragraph {
 pub fn stock_input(app: &App) -> Paragraph {
     Paragraph::new(app.input.as_ref())
         .style(Style::default().fg(Color::Yellow))
-        .block(Block::default().borders(Borders::ALL).title("Stock code"))
+        .block(Block::default().borders(Borders::ALL).title("输入证券代码"))
 }
 
 pub fn title_bar(_app: &App) -> Paragraph {
-    Paragraph::new(format!("Stock {}", VERSION))
+    Paragraph::new(format!("Stock v{}", VERSION))
     .alignment(Alignment::Left)
 }
 
@@ -103,8 +103,8 @@ pub fn status_bar(app: &mut App) -> Paragraph {
     let mut status = app.error.clone();
     if app.error.is_empty() {
         status = match app.state {
-            AppState::Normal => "Quit[Q] | New[N] | Delete[D] | Refresh[R] | Move UpDown[U/J]",
-            AppState::Adding => "Enter create | ESC cancel"
+            AppState::Normal => "退出[Q] | 新建[N] | 删除[D] | 刷新[R] | 上移[U] | 下移[J]",
+            AppState::Adding => "确认[Enter] | 取消[ESC] | 上交所代码前需要加0，深市加1"
         }.to_string();
     }
     else {
