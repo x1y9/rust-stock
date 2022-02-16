@@ -1,6 +1,5 @@
 use std::{error::Error};
 
-use crossterm::event::Event;
 use stock::{DynResult, CrossTerminal, App, TerminalFrame, events::on_events, widget, AppState};
 use tui::{Terminal, backend::CrosstermBackend, widgets};
 use unicode_width::UnicodeWidthStr;
@@ -22,7 +21,8 @@ fn main() -> DynResult{
 fn init_terminal() -> Result<CrossTerminal, Box<dyn Error>> {
     let mut stdout = std::io::stdout();
     crossterm::terminal::enable_raw_mode()?;
-    crossterm::execute!(stdout, crossterm::terminal::EnterAlternateScreen)?;
+    //必须先执行EnableMouseCapture后面才能支持鼠标事件
+    crossterm::execute!(stdout, crossterm::terminal::EnterAlternateScreen, crossterm::event::EnableMouseCapture)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
@@ -31,7 +31,7 @@ fn init_terminal() -> Result<CrossTerminal, Box<dyn Error>> {
 
 fn close_terminal(mut terminal: CrossTerminal) -> DynResult{
     crossterm::terminal::disable_raw_mode()?;
-    crossterm::execute!(terminal.backend_mut(), crossterm::terminal::LeaveAlternateScreen)?;
+    crossterm::execute!(terminal.backend_mut(), crossterm::event::DisableMouseCapture, crossterm::terminal::LeaveAlternateScreen)?;
     Ok(())
 }
 
@@ -43,9 +43,7 @@ fn main_loop(terminal: &mut CrossTerminal, app: &mut App) -> DynResult {
         })?;
 
         //read是block的,如果要非block,可以考虑poll
-        if let Event::Key(event) = crossterm::event::read()? {
-            on_events(event, app);
-        }
+        on_events(crossterm::event::read()?, app);
     }
 
     Ok(())

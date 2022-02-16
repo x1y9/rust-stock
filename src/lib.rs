@@ -20,7 +20,7 @@ pub struct Stock {
     pub code: String,
     pub price: f64,
     pub percent: f64,
-    pub slice: Vec<f64>
+    //pub slice: Vec<f64>
 }
 
 impl Stock {
@@ -30,7 +30,7 @@ impl Stock {
             title:String::from(""),
             price:0.0,
             percent:0.0,
-            slice:vec![],
+            //slice:vec![],
         }
     }
 }
