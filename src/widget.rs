@@ -97,7 +97,8 @@ pub fn stock_input(app: &App) -> Paragraph {
 }
 
 pub fn title_bar(_app: &App) -> Paragraph {
-    Paragraph::new(format!("Stock v{}", VERSION))
+    //可以在这里显示一些调试信息，比如stocks_state，但要每次render stocks之后才会刷新
+    Paragraph::new(format!("Stock v{}", VERSION, ))
     .alignment(Alignment::Left)
 }
 

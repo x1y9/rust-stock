@@ -53,7 +53,8 @@ pub fn on_events(event:Event, app:&mut App) {
             else if let Event::Mouse(mouse) = event {
                 if let MouseEventKind::Up(_button) = mouse.kind {
                     let row = mouse.row as usize; 
-                    //list是从第三行开始，所以要减去2, 这里如果列表滚动了是有问题的。
+                    //list是从第三行开始，所以要减去2, 这里本来还应该考虑list的滚动，
+                    // 但是app.stocks_state的滚动位置字段是private的，取不到。
                     if row >= 2 && row < total + 2{
                         app.stocks_state.select(Some(row - 2));
                     }
