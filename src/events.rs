@@ -1,4 +1,3 @@
-
 use crossterm::event::{KeyCode, Event, MouseEventKind};
 
 use crate::{App, AppState, Stock};
@@ -6,7 +5,7 @@ use crate::{App, AppState, Stock};
 pub fn on_events(event:Event, app:&mut App) {
     let total = app.stocks.len(); 
     let sel = app.stocks_state.selected().unwrap_or(0);
-    let selsome = app.stocks_state.selected().is_some();
+    let selsome = app.stocks_state.selected().is_some() && sel < total;
     match app.state {
         AppState::Normal => {
             if let Event::Key(key) = event {
@@ -55,7 +54,7 @@ pub fn on_events(event:Event, app:&mut App) {
                 if let MouseEventKind::Up(_button) = mouse.kind {
                     let row = mouse.row as usize; 
                     //list是从第三行开始，所以要减去2, 这里如果列表滚动了是有问题的。
-                    if row >= 2 {
+                    if row >= 2 && row < total + 2{
                         app.stocks_state.select(Some(row - 2));
                     }
                 }
