@@ -1,4 +1,4 @@
-use std::{io::Stdout, fs, path::Path};
+use std::{io::Stdout, fs};
 
 use http_req::request;
 use serde::{Serialize, Deserialize};
@@ -50,7 +50,6 @@ pub struct App {
 }
 
 impl App {
-    //这里传入参数声明为&[Stock], &Vec<Stock>似乎都可以
     pub fn new() -> Self {
 
         //ListState:default为未选择, 如果需要也可以初始化为0
@@ -74,15 +73,16 @@ impl App {
     }
 
     pub fn load_stocks(&mut self) -> DynResult{
-        //必须有,否则db不存在时报FileNotFound异常
-        let db=dirs_next::home_dir().unwrap().join(DB_PATH);
-        if !Path::new(&db).exists() {
-            fs::File::create(&db)?;
-        }
+        //用unwrap_or_default屏蔽文件不存在时的异常
+        let content = fs::read_to_string(dirs_next::home_dir().unwrap().join(DB_PATH)).unwrap_or_default();
+        //如果直接转换stocks，必须所有key都对上, 兼容性不好 
+        //self.stocks = serde_json::from_str(&content).unwrap_or_default();
 
-        let content = fs::read_to_string(&db)?;
-        //必须所有key都对上,否则异常,用unwrap_or_default来屏蔽异常
-        self.stocks = serde_json::from_str(&content).unwrap_or_default();
+        //先读成Vec<Value>再转换，可以增加兼容性，
+        let json: Vec<Value> = serde_json::from_str(&content).unwrap_or_default();
+        self.stocks = json.iter().map(|s| Stock::new(
+            s.as_object().unwrap().get("code").unwrap().as_str().unwrap().to_string()))
+            .collect();
 
         Ok(())
     }

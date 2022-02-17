@@ -76,7 +76,7 @@ pub fn stock_list(stocks: &Vec<Stock>) -> List {
 pub fn stock_detail(app: &App) -> Paragraph {
     let mut info = String::new();
     let sel = app.stocks_state.selected().unwrap_or(0);
-    //这样要防止sel超出stocks范围
+    //这里要防止sel超出列表范围
     if app.stocks_state.selected().is_some() && sel < app.stocks.len() {
         let stock = app.stocks.get(sel).unwrap();
         info = format!("代码:{}\n当前:{}\n涨跌:{:+.2}%", stock.code, stock.price.to_string(), stock.percent * 100.0);
