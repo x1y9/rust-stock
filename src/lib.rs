@@ -128,6 +128,7 @@ impl App {
             self.error = format!("{:?}", err);
         }
         else {
+            self.error.clear();
             //标准库没有时间格式化接口，只能用chrono
             self.last_refresh = Local::now();
         }

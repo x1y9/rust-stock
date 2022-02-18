@@ -3,6 +3,8 @@ widgets::{Paragraph, Block, Borders, BorderType, List, ListItem},
 style::{Style, Color, Modifier}, text::{Spans, Span}};
 
 use crate::{App, Stock, AppState};
+use unicode_width::UnicodeWidthStr;
+
 
 const VERSION:&str = env!("CARGO_PKG_VERSION");
 
@@ -83,11 +85,11 @@ pub fn stock_detail(app: &App) -> Paragraph {
     }
 
     Paragraph::new(info)
-    .alignment(Alignment::Center)
-    .style(Style::default())
-    .block(Block::default().title("详情")
-        .borders(Borders::ALL)
-        .border_type(BorderType::Plain))
+        .alignment(Alignment::Center)
+        .style(Style::default())
+        .block(Block::default().title("详情")
+            .borders(Borders::ALL)
+            .border_type(BorderType::Plain))
 }
 
 pub fn stock_input(app: &App) -> Paragraph {
@@ -96,24 +98,25 @@ pub fn stock_input(app: &App) -> Paragraph {
         .block(Block::default().borders(Borders::ALL).title("输入证券代码"))
 }
 
-pub fn title_bar(_app: &App) -> Paragraph {
+pub fn title_bar(app: &App, rect: Rect) -> Paragraph {
+    let left = format!("Stock v{}", VERSION);
+    let right = app.last_refresh.format("最后更新 %H:%M:%S").to_string();
     Paragraph::new(Spans::from(vec![
-        Span::styled(format!("Stock v{} ", VERSION), Style::default()),
-        //Span::styled(app.last_refresh.format("最后更新: %H:%M").to_string(),Style::default().fg(Color::Gray)),
+        Span::raw(left.clone()),
+        Span::raw(" ".repeat((rect.width as usize) - right.width() - left.width())),
+        Span::styled(right,Style::default().fg(Color::Rgb(150,150,150))),
         ]))
     .alignment(Alignment::Left)
 }
 
-pub fn status_bar(app: &mut App) -> Paragraph {
-    let mut status = app.error.clone();
-    if app.error.is_empty() {
-        status = match app.state {
-            AppState::Normal => app.last_refresh.format("退出[Q] | 新建[N] | 删除[D] | 刷新[R] | 上移[U] | 下移[J] | 最后更新: %H:%M:%S").to_string(), 
-            AppState::Adding => String::from("确认[Enter] | 取消[ESC] | 上交所代码前需要加0，深市加1")
-        };
+pub fn status_bar(app: &mut App) -> Paragraph {    
+    Paragraph::new(if app.error.is_empty() {
+        match app.state {
+            AppState::Normal => "退出[Q] | 新建[N] | 删除[D] | 刷新[R] | 上移[U] | 下移[J]", 
+            AppState::Adding => "确认[Enter] | 取消[ESC] | 上交所代码前需要加0，深市加1"
+        }.to_string()
     }
     else {
-        app.error.clear();
-    }
-    Paragraph::new(status).alignment(Alignment::Left)
+        app.error.clone()
+    }).alignment(Alignment::Left)
 }
