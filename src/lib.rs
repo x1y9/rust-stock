@@ -1,5 +1,6 @@
 use std::{io::Stdout, fs};
 
+use chrono::{DateTime, Local};
 use http_req::request;
 use serde::{Serialize, Deserialize};
 use serde_json::{Value, Map, json};
@@ -47,22 +48,22 @@ pub struct App {
     pub stocks:Vec<Stock>,
     //TUI的List控件需要这个state记录当前选中和滚动位置两个状态
     pub stocks_state:ListState,
+    pub last_refresh:DateTime<Local>,
+    pub tick_count:u128,
 }
 
 impl App {
     pub fn new() -> Self {
-
-        //ListState:default为未选择, 如果需要也可以初始化为0
-        //let mut sel = ListState::default();
-        //sel.select(Option::Some(0));
-
         Self {
             should_exit: false,
             state: AppState::Normal,
             input: String::new(),
             error: String::new(),
             stocks: [].to_vec(),
+            //ListState:default为未选择，因为可能stocks为空，所以不能自动选第一个
             stocks_state: ListState::default(),
+            last_refresh: Local::now(),
+            tick_count: 0,
         }
     }
 
@@ -118,6 +119,18 @@ impl App {
             }
         }
         Ok(())
+    }
+
+    //带错误处理的refresh接口
+    pub fn refresh_stocks_safe(&mut self) {
+        //如果不想处理err,可以直接unwrap_or_default忽略Error
+        if let Err(err) = self.refresh_stocks() {
+            self.error = format!("{:?}", err);
+        }
+        else {
+            //标准库没有时间格式化接口，只能用chrono
+            self.last_refresh = Local::now();
+        }
     }
 }
 

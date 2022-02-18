@@ -2,6 +2,7 @@ use crossterm::event::{KeyCode, Event, MouseEventKind};
 
 use crate::{App, AppState, Stock};
 
+//处理键盘、鼠标事件
 pub fn on_events(event:Event, app:&mut App) {
     let total = app.stocks.len(); 
     let sel = app.stocks_state.selected().unwrap_or(0);
@@ -13,11 +14,8 @@ pub fn on_events(event:Event, app:&mut App) {
                 if code == KeyCode::Char('q') {
                     app.should_exit = true;
                 }
-                else if code == KeyCode::Char('r') {
-                    //如果不想错误处理,可以直接unwrap_or_default忽略Error             
-                    if let Err(err) = app.refresh_stocks() {
-                        app.error = format!("{:?}", err);
-                    }
+                else if code == KeyCode::Char('r') { 
+                    app.refresh_stocks_safe();
                 }
                 else if code == KeyCode::Char('n') {
                     //新建stock
@@ -68,9 +66,7 @@ pub fn on_events(event:Event, app:&mut App) {
                     app.state = AppState::Normal;
                     if app.input.len() > 0 {
                         app.stocks.push(Stock::new(app.input.clone()));
-                        if let Err(err) = app.refresh_stocks() {
-                            app.error = format!("{:?}", err);
-                        }
+                        app.refresh_stocks_safe();
                         app.save_stocks().unwrap();
                     }
                 }
@@ -86,6 +82,16 @@ pub fn on_events(event:Event, app:&mut App) {
                 _ => {}
             },
             _ => {},
+        }
+    }
+}
+
+//处理定时事件
+pub fn on_tick(app:&mut App) {
+    app.tick_count+=1;
+    if app.tick_count % 60 == 0  {
+        if  let AppState::Normal = app.state {  
+            app.refresh_stocks_safe();
         }
     }
 }

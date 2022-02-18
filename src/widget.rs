@@ -97,8 +97,10 @@ pub fn stock_input(app: &App) -> Paragraph {
 }
 
 pub fn title_bar(_app: &App) -> Paragraph {
-    //可以在这里显示一些调试信息，比如stocks_state，但要每次render stocks之后才会刷新
-    Paragraph::new(format!("Stock v{}", VERSION, ))
+    Paragraph::new(Spans::from(vec![
+        Span::styled(format!("Stock v{} ", VERSION), Style::default()),
+        //Span::styled(app.last_refresh.format("最后更新: %H:%M").to_string(),Style::default().fg(Color::Gray)),
+        ]))
     .alignment(Alignment::Left)
 }
 
@@ -106,9 +108,9 @@ pub fn status_bar(app: &mut App) -> Paragraph {
     let mut status = app.error.clone();
     if app.error.is_empty() {
         status = match app.state {
-            AppState::Normal => "退出[Q] | 新建[N] | 删除[D] | 刷新[R] | 上移[U] | 下移[J]",
-            AppState::Adding => "确认[Enter] | 取消[ESC] | 上交所代码前需要加0，深市加1"
-        }.to_string();
+            AppState::Normal => app.last_refresh.format("退出[Q] | 新建[N] | 删除[D] | 刷新[R] | 上移[U] | 下移[J] | 最后更新: %H:%M:%S").to_string(), 
+            AppState::Adding => String::from("确认[Enter] | 取消[ESC] | 上交所代码前需要加0，深市加1")
+        };
     }
     else {
         app.error.clear();

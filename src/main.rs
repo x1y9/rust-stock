@@ -1,6 +1,6 @@
-use std::{error::Error};
+use std::{error::Error, time::{Instant, Duration}};
 
-use stock::{DynResult, CrossTerminal, App, TerminalFrame, events::on_events, widget, AppState};
+use stock::{DynResult, CrossTerminal, App, TerminalFrame, events, widget, AppState};
 use tui::{Terminal, backend::CrosstermBackend, widgets};
 use unicode_width::UnicodeWidthStr;
 
@@ -8,8 +8,7 @@ use unicode_width::UnicodeWidthStr;
 fn main() -> DynResult{
     let mut app = App::new();
     app.load_stocks()?;
-    //初始化的刷新, 用unwrap_or_default忽略Err
-    app.refresh_stocks().unwrap_or_default();
+    app.refresh_stocks_safe();
     let mut terminal = init_terminal()?;
     
     main_loop(&mut terminal, &mut app)?;
@@ -37,13 +36,17 @@ fn close_terminal(mut terminal: CrossTerminal) -> DynResult{
 
 //主事件循环
 fn main_loop(terminal: &mut CrossTerminal, app: &mut App) -> DynResult {
+    let mut last_tick = Instant::now();
     while !app.should_exit {
-        terminal.draw(|f| {
-            on_draw(f, app);
-        })?;
+        terminal.draw(|f| {on_draw(f, app);})?;
 
-        //read是block的,如果要非block,可以考虑poll
-        on_events(crossterm::event::read()?, app);
+        if crossterm::event::poll(Duration::from_secs(1).checked_sub(last_tick.elapsed()).unwrap_or_default())? {
+            events::on_events(crossterm::event::read()?, app);
+        }
+        else {
+            events::on_tick(app);
+            last_tick = Instant::now();
+        }
     }
 
     Ok(())
