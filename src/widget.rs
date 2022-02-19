@@ -81,7 +81,8 @@ pub fn stock_detail(app: &App) -> Paragraph {
     //这里要防止sel超出列表范围
     if app.stocks_state.selected().is_some() && sel < app.stocks.len() {
         let stock = app.stocks.get(sel).unwrap();
-        info = format!("代码:{}\n当前:{}\n涨跌:{:+.2}%", stock.code, stock.price.to_string(), stock.percent * 100.0);
+        info = format!("代码:{}\n涨跌:{:+.2}%\n当前:{}\n今开:{}\n昨收:{}\n最高:{}\n最低:{}", 
+            stock.code, stock.percent * 100.0, stock.price, stock.open, stock.yestclose, stock.high, stock.low);
     }
 
     Paragraph::new(info)

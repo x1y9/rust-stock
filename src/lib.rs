@@ -1,4 +1,4 @@
-use std::{io::Stdout, fs};
+use std::{io::Stdout, fs, collections::HashMap};
 
 use chrono::{DateTime, Local};
 use http_req::request;
@@ -21,6 +21,10 @@ pub struct Stock {
     pub code: String,
     pub price: f64,
     pub percent: f64,
+    pub open: f64, //今开
+    pub yestclose: f64, //昨收
+    pub high: f64, //最高
+    pub low: f64, //最低
     //pub slice: Vec<f64>
 }
 
@@ -31,6 +35,10 @@ impl Stock {
             title:String::from(""),
             price:0.0,
             percent:0.0,
+            open:0.0,
+            yestclose:0.0,
+            high:0.0,
+            low:0.0,
             //slice:vec![],
         }
     }
@@ -69,7 +77,8 @@ impl App {
 
     pub fn save_stocks(&self) -> DynResult{
         let db=dirs_next::home_dir().unwrap().join(DB_PATH);
-        fs::write(&db, serde_json::to_string(&self.stocks)?)?;
+        let cfg:Vec<_> = self.stocks.iter().map(|s| HashMap::from([("code", &s.code)])).collect();
+        fs::write(&db, serde_json::to_string(&cfg)?)?;
         Ok(())
     }
 
@@ -105,6 +114,10 @@ impl App {
                     stock.title = obj.get("name").unwrap_or(&json!("无效代码")).as_str().unwrap().to_owned();
                     stock.price = obj.get("price").unwrap_or(&json!(0.0)).as_f64().unwrap();
                     stock.percent = obj.get("percent").unwrap_or(&json!(0.0)).as_f64().unwrap();
+                    stock.open = obj.get("open").unwrap_or(&json!(0.0)).as_f64().unwrap();
+                    stock.yestclose = obj.get("yestclose").unwrap_or(&json!(0.0)).as_f64().unwrap();
+                    stock.high = obj.get("high").unwrap_or(&json!(0.0)).as_f64().unwrap();
+                    stock.low = obj.get("low").unwrap_or(&json!(0.0)).as_f64().unwrap();
 
                     // if json.contains_key(&stock.code) {
                     //     let mut writer2 = Vec::new();
