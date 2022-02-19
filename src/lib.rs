@@ -77,8 +77,9 @@ impl App {
 
     pub fn save_stocks(&self) -> DynResult{
         let db=dirs_next::home_dir().unwrap().join(DB_PATH);
-        let cfg:Vec<_> = self.stocks.iter().map(|s| HashMap::from([("code", &s.code)])).collect();
-        fs::write(&db, serde_json::to_string(&cfg)?)?;
+        //每个stock单独存一个对象，是考虑将来的扩展性
+        let stocks:Vec<_> = self.stocks.iter().map(|s| HashMap::from([("code", &s.code)])).collect();
+        fs::write(&db, serde_json::to_string(&HashMap::from([("stocks", stocks)]))?)?;
         Ok(())
     }
 
@@ -88,10 +89,10 @@ impl App {
         //如果直接转换stocks，必须所有key都对上, 兼容性不好 
         //self.stocks = serde_json::from_str(&content).unwrap_or_default();
 
-        //先读成Vec<Value>再转换，可以增加兼容性，
-        let json: Vec<Value> = serde_json::from_str(&content).unwrap_or_default();
-        self.stocks = json.iter().map(|s| Stock::new(
-            s.as_object().unwrap().get("code").unwrap().as_str().unwrap().to_string()))
+        //先读成Map再转换，可以增加兼容性，
+        let json: Map<String, Value> = serde_json::from_str(&content).unwrap_or_default();
+        self.stocks = json.get("stocks").unwrap_or(&json!([])).as_array().unwrap().iter()
+            .map(|s| Stock::new(s.as_object().unwrap().get("code").unwrap().as_str().unwrap().to_string()))
             .collect();
 
         Ok(())
