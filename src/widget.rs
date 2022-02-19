@@ -104,7 +104,8 @@ pub fn title_bar(app: &App, rect: Rect) -> Paragraph {
     let right = app.last_refresh.format("最后更新 %H:%M:%S").to_string();
     Paragraph::new(Spans::from(vec![
         Span::raw(left.clone()),
-        Span::raw(" ".repeat((rect.width as usize) - right.width() - left.width())),
+        //使用checked_sub防止溢出
+        Span::raw(" ".repeat((rect.width as usize).checked_sub(right.width() + left.width()).unwrap_or(0))),
         Span::styled(right,Style::default().fg(Color::Rgb(150,150,150))),
         ]))
     .alignment(Alignment::Left)
