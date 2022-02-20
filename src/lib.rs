@@ -29,10 +29,10 @@ pub struct Stock {
 }
 
 impl Stock {
-    pub fn new(code:String) ->Self {
+    pub fn new(code:&String) ->Self {
         Self {
-            code,
-            title:String::from(""),
+            code: code.clone(),
+            title: code.clone(),
             price:0.0,
             percent:0.0,
             open:0.0,
@@ -92,7 +92,7 @@ impl App {
         //先读成Map再转换，可以增加兼容性，
         let json: Map<String, Value> = serde_json::from_str(&content).unwrap_or_default();
         self.stocks = json.get("stocks").unwrap_or(&json!([])).as_array().unwrap().iter()
-            .map(|s| Stock::new(s.as_object().unwrap().get("code").unwrap().as_str().unwrap().to_string()))
+            .map(|s| Stock::new(&s.as_object().unwrap().get("code").unwrap().as_str().unwrap().to_string()))
             .collect();
 
         Ok(())
@@ -112,7 +112,7 @@ impl App {
                 for stock in &mut self.stocks {
                     //如果code不对,返回的json里不包括这个对象, 用unwrap_or生成一个空对象,防止异常
                     let obj = json.get(&stock.code).unwrap_or(&json!({})).as_object().unwrap().to_owned();
-                    stock.title = obj.get("name").unwrap_or(&json!("无效代码")).as_str().unwrap().to_owned();
+                    stock.title = obj.get("name").unwrap_or(&json!(stock.code.clone())).as_str().unwrap().to_owned();
                     stock.price = obj.get("price").unwrap_or(&json!(0.0)).as_f64().unwrap();
                     stock.percent = obj.get("percent").unwrap_or(&json!(0.0)).as_f64().unwrap();
                     stock.open = obj.get("open").unwrap_or(&json!(0.0)).as_f64().unwrap();

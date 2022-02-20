@@ -65,7 +65,7 @@ pub fn on_events(event:Event, app:&mut App) {
                 KeyCode::Enter => {
                     app.state = AppState::Normal;
                     if app.input.len() > 0 {
-                        app.stocks.push(Stock::new(app.input.clone()));
+                        app.stocks.push(Stock::new(&app.input));
                         app.refresh_stocks_safe();
                         app.save_stocks().unwrap();
                     }
