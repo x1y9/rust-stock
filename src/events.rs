@@ -4,7 +4,7 @@ use crate::{App, AppState, Stock};
 
 //处理键盘、鼠标事件
 pub fn on_events(event:Event, app:&mut App) {
-    let total = app.stocks.len(); 
+    let total = app.stocks.lock().unwrap().len(); 
     let sel = app.stocks_state.selected().unwrap_or(0);
     let selsome = app.stocks_state.selected().is_some() && sel < total;
     match app.state {
@@ -15,7 +15,7 @@ pub fn on_events(event:Event, app:&mut App) {
                     app.should_exit = true;
                 }
                 else if code == KeyCode::Char('r') { 
-                    app.refresh_stocks_safe();
+                    app.refresh_stocks();
                 }
                 else if code == KeyCode::Char('n') {
                     //新建stock
@@ -24,19 +24,19 @@ pub fn on_events(event:Event, app:&mut App) {
                 }
                 else if code == KeyCode::Char('d') && selsome {
                     //删除当前选中的stock
-                    app.stocks.remove(sel);
+                    app.stocks.lock().unwrap().remove(sel);
                     app.save_stocks().unwrap();
                     app.stocks_state.select(None);
                 }
                 else if code == KeyCode::Char('u') && selsome && sel > 0 {
                     //将选中stock往上移动一位
-                    app.stocks.swap(sel, sel -1);
+                    app.stocks.lock().unwrap().swap(sel, sel -1);
                     app.save_stocks().unwrap();
                     app.stocks_state.select(Some(sel - 1));
                 }
                 else if code == KeyCode::Char('j') && selsome && sel < total - 1 {
                     //将选中stock往下移动一位
-                    app.stocks.swap(sel, sel + 1);
+                    app.stocks.lock().unwrap().swap(sel, sel + 1);
                     app.save_stocks().unwrap();
                     app.stocks_state.select(Some(sel + 1));
                 }
@@ -65,8 +65,8 @@ pub fn on_events(event:Event, app:&mut App) {
                 KeyCode::Enter => {
                     app.state = AppState::Normal;
                     if app.input.len() > 0 {
-                        app.stocks.push(Stock::new(&app.input));
-                        app.refresh_stocks_safe();
+                        app.stocks.lock().unwrap().push(Stock::new(&app.input));
+                        app.refresh_stocks();
                         app.save_stocks().unwrap();
                     }
                 }
@@ -91,7 +91,7 @@ pub fn on_tick(app:&mut App) {
     app.tick_count+=1;
     if app.tick_count % 60 == 0  {
         if  let AppState::Normal = app.state {  
-            app.refresh_stocks_safe();
+            app.refresh_stocks();
         }
     }
 }

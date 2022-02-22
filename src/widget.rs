@@ -79,8 +79,9 @@ pub fn stock_detail(app: &App) -> Paragraph {
     let mut info = String::new();
     let sel = app.stocks_state.selected().unwrap_or(0);
     //这里要防止sel超出列表范围
-    if app.stocks_state.selected().is_some() && sel < app.stocks.len() {
-        let stock = app.stocks.get(sel).unwrap();
+    let stocks = app.stocks.lock().unwrap();
+    if app.stocks_state.selected().is_some() && sel < stocks.len() {
+        let stock = stocks.get(sel).unwrap();
         info = format!("代码:{}\n涨跌:{:+.2}%\n当前:{}\n今开:{}\n昨收:{}\n最高:{}\n最低:{}", 
             stock.code, stock.percent * 100.0, stock.price, stock.open, stock.yestclose, stock.high, stock.low);
     }

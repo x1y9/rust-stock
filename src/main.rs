@@ -7,10 +7,7 @@ use unicode_width::UnicodeWidthStr;
 
 fn main() -> DynResult{
     let mut app = App::new();
-    app.load_stocks()?;
-    app.refresh_stocks_safe();
     let mut terminal = init_terminal()?;
-    
     main_loop(&mut terminal, &mut app)?;
     close_terminal(terminal)?;
 
@@ -56,7 +53,7 @@ fn on_draw(frame: &mut TerminalFrame, app: &mut App) {
     let chunks = widget::main_chunks(frame.size());
 
     //list的render需要调render_stateful_widget,否则滚动状态不对,这里第一个参数不能是app,否则会和后面的mut stock_state冲突
-    frame.render_stateful_widget(widget::stock_list(&app.stocks), chunks[1], &mut app.stocks_state);
+    frame.render_stateful_widget(widget::stock_list(&app.stocks.lock().unwrap()), chunks[1], &mut app.stocks_state);
     //因为render stock_list时会修改滚动状态，后面如果要用到这个值，就需要先做list的render
     frame.render_widget(widget::title_bar(app, frame.size()), chunks[0]);
     frame.render_widget(widget::stock_detail(app), chunks[2]);
