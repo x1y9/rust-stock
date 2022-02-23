@@ -102,24 +102,22 @@ pub fn stock_input(app: &App) -> Paragraph {
 
 pub fn title_bar(app: &App, rect: Rect) -> Paragraph {
     let left = format!("Stock v{}", VERSION);
-    let right = app.last_refresh.format("最后更新 %H:%M:%S").to_string();
+    let error = app.error.lock().unwrap();
+    let right = if error.is_empty() { app.last_refresh.lock().unwrap().format("最后更新 %H:%M:%S").to_string() } else { error.clone() };
     Paragraph::new(Spans::from(vec![
         Span::raw(left.clone()),
         //使用checked_sub防止溢出
         Span::raw(" ".repeat((rect.width as usize).checked_sub(right.width() + left.width()).unwrap_or(0))),
-        Span::styled(right,Style::default().fg(Color::Rgb(150,150,150))),
+        Span::styled(right,Style::default()
+            .fg(if error.is_empty() { Color::White } else { Color::Red })),
         ]))
     .alignment(Alignment::Left)
 }
 
 pub fn status_bar(app: &mut App) -> Paragraph {    
-    Paragraph::new(if app.error.is_empty() {
-        match app.state {
+    Paragraph::new(match app.state {
             AppState::Normal => "退出[Q] | 新建[N] | 删除[D] | 刷新[R] | 上移[U] | 下移[J]", 
             AppState::Adding => "确认[Enter] | 取消[ESC] | 上交所代码前需要加0，深市加1"
         }.to_string()
-    }
-    else {
-        app.error.clone()
-    }).alignment(Alignment::Left)
+    ).alignment(Alignment::Left)
 }
